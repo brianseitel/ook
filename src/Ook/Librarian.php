@@ -40,21 +40,21 @@ class Librarian {
 
     public function handleInput($input)
     {
-        if (file_exists($input)) {
-            if (strpos($input, '.xml')) {
-                return $this->loadFileXML($input);
-            } elseif (strpos($input, '.json')) {
-                return $this->loadFileJSON($input);
-            } else {
-                throw new Exception('File type not allowed.');
-            }
-        }
-
-        if ($input instanceOf SimpleXMLElement) {
-            return $this->parseXML($input);
+        if (get_class($input) == 'SimpleXMLElement') {
+            return $this->loadSimpleXML($input);
         }
 
         if (is_string($input)) {
+            if (file_exists($input)) {
+                if (strpos($input, '.xml')) {
+                    return $this->loadFileXML($input);
+                } elseif (strpos($input, '.json')) {
+                    return $this->loadFileJSON($input);
+                } else {
+                    throw new Exception('File type not allowed.');
+                }
+            }
+
             if ($json = json_decode($input, 1)) {
                 return $this->loadJSON($json);
             }
