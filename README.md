@@ -18,25 +18,39 @@ Ook utilizes the "dot" notation when defining rules for translating between arra
 
 ```php
 
-$array = ['computer' => ['price' => 1000]];
+$array = ['items' => [
+    'item' => [
+        ['name' => 'computer', 'price' => 1000],
+        ['name' => 'monitor', 'price' => 150]
+    ]
+];
 
-Arr::get('computer.price') // 1000
+Arr::get('items.item.0.price') // 1000
 ```
 
 We'll use the same thing to define a ruleset for XML:
 
 #### sample.xml
 ```xml
-<item>
-    <price>1000</price>
-</item>
+<items>
+    <item>
+        <name>computer</name>
+        <price>1000</price>
+    </item>
+    <item>
+        <name>monitor</name>
+        <price>150</price>
+    </item>
+</items>
+
 ```
 
 Ook will convert this to an array with a key of `item.price`. Let's imagine we want to translate this from `item.price` to `inventory.item.price`
 
 #### config.yaml
 ```yaml
-inventory.item.price: item.price
+inventory.item.*.name: items.item.*.name
+inventory.item.*.price: items.item.*.price
 ```
 
 To translate it, we simply run:
@@ -50,7 +64,29 @@ $output = $librarian->transform();
 This will return:
 
 ```
-['inventory' => ['item' => ['price' => 1000]]]
+Array
+(
+    [inventory] => Array
+        (
+            [item] => Array
+                (
+                    [0] => Array
+                        (
+                            [name] => computer
+                            [price] => 1000
+                        )
+
+                    [1] => Array
+                        (
+                            [name] => monitor
+                            [price] => 150
+                        )
+
+                )
+
+        )
+
+)
 ```
 
 ### Additional Details
