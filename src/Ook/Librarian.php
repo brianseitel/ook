@@ -97,8 +97,8 @@ class Librarian {
         $all_rules = [];
         foreach ($rules as $key => $value) {
             if (strpos($key, '*')) {
-                $new_keys = $this->expand_keys($key);
-                $new_values = $this->expand_keys($value);
+                $new_keys = Arr::expand_keys($key);
+                $new_values = Arr::expand_keys($value);
 
                 $new_rules = array_combine($new_keys, $new_values);
                 foreach ($new_rules as $new_key => $new_rule) {
@@ -116,48 +116,6 @@ class Librarian {
         }
 
         return $output;
-    }
-
-    /**
-     * Accepts a dot-notation array key with wildcards and expands them
-     * into an array of dot-notation array keys in numerical order.
-     *
-     * @param string $key - dot notation
-     * @param int $size - number of keys to generate per wildcard. Defaults to 10.
-     * @return array
-     */
-    public function expand_keys($key, $size = 10) {
-        $keys = [];
-        $original_key = $key;
-        for ($i = 0; $i < $size; $i++) {
-            $k = $this->str_replace_first('*', $i, $original_key);
-            if (strpos($k, '*') !== false) {
-                $sub_keys = $this->expand_keys($k);
-                foreach ($sub_keys as $sk) {
-                    $keys[] = $sk;
-                }
-            } else {
-                $keys[] = $k;
-            }
-        }
-
-        return $keys;
-    }
-
-    /**
-     * Helper function that only replaces the first occurrence of a string.
-     *
-     * @param string $needle
-     * @param string $replace
-     * @param string $haystack
-     * @return string
-     */
-    public function str_replace_first($needle, $replace, $haystack) {
-        $pos = strpos($haystack, $needle);
-        if ($pos !== false) {
-            return substr_replace($haystack, $replace, $pos, strlen($needle));
-        }
-        return $haystack;
     }
 
 }

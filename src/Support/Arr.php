@@ -7,6 +7,32 @@ use ArrayAccess;
 class Arr {
 
     /**
+     * Accepts a dot-notation array key with wildcards and expands them
+     * into an array of dot-notation array keys in numerical order.
+     *
+     * @param string $key - dot notation
+     * @param int $size - number of keys to generate per wildcard. Defaults to 10.
+     * @return array
+     */
+    public static function expand_keys($key, $size = 10) {
+        $keys = [];
+        $original_key = $key;
+        for ($i = 0; $i < $size; $i++) {
+            $k = Str::str_replace_first('*', $i, $original_key);
+            if (strpos($k, '*') !== false) {
+                $sub_keys = $this->expand_keys($k);
+                foreach ($sub_keys as $sk) {
+                    $keys[] = $sk;
+                }
+            } else {
+                $keys[] = $k;
+            }
+        }
+
+        return $keys;
+    }
+
+    /**
      * Determine whether the given value is array accessible.
      *
      * @param  mixed  $value
