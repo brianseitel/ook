@@ -108,7 +108,7 @@ class Librarian {
     public function loadConfig($config_path)
     {
         if (!file_exists($config_path)) {
-            throw new Exception('File does not exist at path ' . $file_path);
+            throw new Exception('File does not exist at path ' . $config_path);
         }
 
         $file = file_get_contents($config_path);
