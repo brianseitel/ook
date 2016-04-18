@@ -1,0 +1,12 @@
+{
+    "rss": {
+        "channel": {
+            "item": [
+                {
+                    "title": "Foo",
+                    "description": "Some description"
+                }
+            ]
+        }
+    }
+}

@@ -28,38 +28,67 @@ class Librarian {
 
     /**
      * Loads the input file and the configuration / rule set
-     * @param string $file_path
+     * @param mixed $input Data to parse. Could be XML string, JSON string, file path, or SimpleXMLElement
      * @param string $config_path
      * @return void
      */
-    public function __construct($file_path, $config_path)
+    public function __construct($xml, $config_path)
     {
-        $this->loadFile($file_path);
+        $this->handleInput($xml);
         $this->loadConfig($config_path);
     }
 
-    /**
-     * Retrieves the data from the input file path, if it exists,
-     * then parses it based on the file extension.
-     *
-     * @param string $file_path
-     * @return void
-     */
-    public function loadFile($file_path)
+    public function handleInput($input)
     {
-        if (!file_exists($file_path)) {
-            throw new Exception('File does not exist at path ' . $file_path);
+        if (file_exists($input)) {
+            if (strpos($input, '.xml')) {
+                return $this->loadFileXML($input);
+            } elseif (strpos($input, '.json')) {
+                return $this->loadFileJSON($input);
+            } else {
+                throw new Exception('File type not allowed.');
+            }
         }
 
-        if (strpos($file_path, '.json') !== false) {
-            $this->feed_data = json_decode(file_get_contents($file_path), 1);
-        } else if (strpos($file_path, '.xml') !== false) {
-            $xml = simplexml_load_file($file_path);
-            $parser = new XmlParser($xml);
-            $this->feed_data = $parser->parse();
-        } else {
-            throw new Exception('File type not supported.');
+        if ($input instanceOf SimpleXMLElement) {
+            return $this->parseXML($input);
         }
+
+        if (is_string($input)) {
+            if ($json = json_decode($input, 1)) {
+                return $this->loadJSON($json);
+            }
+
+            if ($xml = simplexml_load_string($input)) {
+                return $this->loadXML($xml);
+            }
+        }
+
+        throw new Exception('Ook doesn\'t know what to do with this type of input.');
+    }
+
+    public function loadFileXML($input) {
+        $xml = simplexml_load_file($input);
+        $parser = new XmlParser($xml);
+        $this->feed_data = $parser->parse();
+    }
+
+    public function loadFileJSON($input) {
+        $file = file_get_contents($input);
+        $this->feed_data = json_decode($file, 1);
+    }
+
+    public function loadSimpleXML($input) {
+        $parser = new XmlParser($input);
+        $this->feed_data = $parser->parse();
+    }
+
+    public function loadJSON($input) {
+        $this->feed_data = json_decode($input, 1);
+    }
+
+    public function loadXML($input) {
+        $this->feed_data = simplexml_load_string($xml);
     }
 
     /**
