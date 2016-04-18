@@ -40,7 +40,7 @@ class Librarian {
 
     public function handleInput($input)
     {
-        if (get_class($input) == 'SimpleXMLElement') {
+        if (is_object($input) && get_class($input) == 'SimpleXMLElement') {
             return $this->loadSimpleXML($input);
         }
 
