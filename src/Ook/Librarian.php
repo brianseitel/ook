@@ -26,6 +26,8 @@ class Librarian {
      */
     private $rules;
 
+    private $expand_size = 1000;
+
     /**
      * Loads the input file and the configuration / rule set
      * @param mixed $input Data to parse. Could be XML string, JSON string, file path, or SimpleXMLElement
@@ -36,6 +38,11 @@ class Librarian {
     {
         $this->handleInput($xml);
         $this->loadConfig($config_path);
+    }
+
+    public function setExpandSize($size)
+    {
+        $this->expand_size = $size;
     }
 
     public function handleInput($input)
@@ -126,8 +133,8 @@ class Librarian {
         $all_rules = [];
         foreach ($rules as $key => $value) {
             if (strpos($key, '*')) {
-                $new_keys = Arr::expand_keys($key);
-                $new_values = Arr::expand_keys($value);
+                $new_keys = Arr::expand_keys($key, $this->expand_size);
+                $new_values = Arr::expand_keys($value, $this->expand_size);
 
                 $new_rules = array_combine($new_keys, $new_values);
                 foreach ($new_rules as $new_key => $new_rule) {
