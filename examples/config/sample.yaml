@@ -1,0 +1,3 @@
+article.*.title: rss.channel.item.*.title
+article.*.description: rss.channel.item.*.description
+article.*.author: rss.channel.item.*.author

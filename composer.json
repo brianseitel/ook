@@ -1,0 +1,22 @@
+{
+    "name": "brianseitel/ook",
+    "description": "A package that transforms XML/JSON documents from one standard to another",
+    "authors": [
+        {
+            "name": "Brian Seitel",
+            "email": "brianseitel@gmail.com"
+        }
+    ],
+    "license": "MIT",
+    "type": "project",
+    "require": {
+        "php": ">=5.5.9",
+        "symfony/yaml": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ook\\": "src/Ook",
+            "Illuminate\\": "src/Illuminate"
+        }
+    }
+}
