@@ -1,11 +1,10 @@
 <?php
 
-namespace Illuminate\Support;
+namespace Support;
 
 use ArrayAccess;
 
-class Arr
-{
+class Arr {
 
     /**
      * Determine whether the given value is array accessible.

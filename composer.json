@@ -16,7 +16,7 @@
     "autoload": {
         "psr-4": {
             "Ook\\": "src/Ook",
-            "Illuminate\\": "src/Illuminate"
+            "Support\\": "src/Support"
         }
     }
 }
