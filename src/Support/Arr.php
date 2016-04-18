@@ -20,7 +20,7 @@ class Arr {
         for ($i = 0; $i < $size; $i++) {
             $k = Str::str_replace_first('*', $i, $original_key);
             if (strpos($k, '*') !== false) {
-                $sub_keys = $this->expand_keys($k);
+                $sub_keys = static::expand_keys($k);
                 foreach ($sub_keys as $sk) {
                     $keys[] = $sk;
                 }
