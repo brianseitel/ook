@@ -95,7 +95,8 @@ class Librarian {
     }
 
     public function loadXML($input) {
-        $this->feed_data = simplexml_load_string($input);
+        $parser = new XmlParser($input);
+        $this->feed_data = $parser->parse();
     }
 
     /**
@@ -155,3 +156,4 @@ class Librarian {
     }
 
 }
+
