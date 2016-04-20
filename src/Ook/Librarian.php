@@ -87,8 +87,7 @@ class Librarian {
      */
     public function handleInput($input)
     {
-        if ((is_object($input) && get_class($input) == 'SimpleXMLElement')
-            || $xml = simplexml_load_string($input)) {
+        if ((is_object($input) && get_class($input) == 'SimpleXMLElement')) {
             return $this->loadSimpleXML($input);
         }
 
@@ -105,6 +104,10 @@ class Librarian {
 
             if ($json = json_decode($input, 1)) {
                 return $this->loadJSON($json);
+            }
+
+            if ($xml = simplexml_load_string($input)) {
+                return $this->loadXML($xml);
             }
         }
 
@@ -202,8 +205,7 @@ class Librarian {
         $output = [];
 
         $array = Arr::dot($this->feed_data);
-
-        $rules = $this->rules;
+        $rules = Arr::dot($this->rules);
 
         $all_rules = [];
         foreach ($rules as $key => $value) {
