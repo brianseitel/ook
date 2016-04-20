@@ -4,6 +4,7 @@ namespace Ook;
 
 use Exception;
 use Support\Arr;
+use SimpleXMLElement;
 use Symfony\Component\Yaml\Parser;
 
 class Librarian {
