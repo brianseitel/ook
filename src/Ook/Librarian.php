@@ -26,7 +26,19 @@ class Librarian {
      */
     private $rules;
 
+    /**
+     * Maximum size to expand a list of elements in a config.
+     *
+     * @var string
+     */
     private $expand_size = 1000;
+
+    /**
+     * The options to pass into the parser.
+     *
+     * @var array
+     */
+    private $parser_options = [];
 
     /**
      * Loads the input file and the configuration / rule set
@@ -40,14 +52,43 @@ class Librarian {
         $this->loadConfig($config_path);
     }
 
+    /**
+     * Sets the maximum size for a list of elements in a config.
+     *
+     * Ex: items.*.url would turn into [items.0.url ... items.999.url]
+     *
+     * @param int $size
+     * @return void
+     */
     public function setExpandSize($size)
     {
         $this->expand_size = $size;
     }
 
+    /**
+     * Sets parser options for the XMLParser
+     *
+     * @param array $options
+     * @return void
+     */
+    public function setParserOptions($options = [])
+    {
+        $this->parser_options = $options;
+    }
+
+    /**
+     * Handles the input for a given input type. It examines
+     * the class type, the extension, or attempts a conversion
+     * to determine the input type. Once determined, it sends
+     * it to the appropriate loader.
+     *
+     * @param mixed $input
+     * @return array
+     */
     public function handleInput($input)
     {
-        if (is_object($input) && get_class($input) == 'SimpleXMLElement') {
+        if ((is_object($input) && get_class($input) == 'SimpleXMLElement')
+            || $xml = simplexml_load_string($input)) {
             return $this->loadSimpleXML($input);
         }
 
@@ -65,40 +106,73 @@ class Librarian {
             if ($json = json_decode($input, 1)) {
                 return $this->loadJSON($json);
             }
-
-            if ($xml = simplexml_load_string($input)) {
-                return $this->loadXML($xml);
-            }
         }
 
         throw new Exception('Ook doesn\'t know what to do with this type of input.');
     }
 
-    public function loadFileXML($input) {
-        $xml = simplexml_load_file($input);
-        $parser = new XmlParser($xml);
-        $this->feed_data = $parser->parse();
+    /**
+     * Loads an XML file then sends it to the parser.
+     *
+     * @param string $path
+     * @return void
+     */
+    public function loadFileXML($path) {
+        $xml = simplexml_load_file($path);
     }
 
-    public function loadFileJSON($input) {
-        $file = file_get_contents($input);
+    /**
+     * Loads a JSON file, then decodes it.
+     *
+     * @param string $path
+     * @return void
+     */
+    public function loadFileJSON($path) {
+        $file = file_get_contents($path);
         $this->feed_data = json_decode($file, 1);
     }
 
-    public function loadSimpleXML($input) {
-        $parser = new XmlParser($input);
+    /**
+     * Loads a SimpleXML object and parses it.
+     *
+     * @param SimpleXMLElement $input
+     * @return void
+     */
+    public function loadSimpleXML(SimpleXMLElement $input) {
+        $this->parseXml($input);
+    }
+
+    /**
+     * Loads a JSON string and parses it.
+     *
+     * @param string $json
+     * @return void
+     */
+    public function loadJSON($json) {
+        $this->feed_data = json_decode($json, 1);
+    }
+
+    /**
+     * Loads an XML string and parses it
+     *
+     * @param string $xml
+     * @return void
+     */
+    public function loadXML($xml) {
+        $this->parseXml($xml);
+    }
+
+    /**
+     * Begins parsing a SimpleXML object
+     *
+     * @param SimpleXMLElement $xml
+     * @return void
+     */
+    private function parseXml(SimpleXMLElement $xml)
+    {
+        $parser = new XmlParser($xml, $this->parser_options);
         $this->feed_data = $parser->parse();
     }
-
-    public function loadJSON($input) {
-        $this->feed_data = json_decode($input, 1);
-    }
-
-    public function loadXML($input) {
-        $parser = new XmlParser($input);
-        $this->feed_data = $parser->parse();
-    }
-
     /**
      * Retrieves the rule set from the configuration file, then parses
      * it from YAML into an array.
