@@ -123,6 +123,7 @@ class Librarian {
      */
     public function loadFileXML($path) {
         $xml = simplexml_load_file($path);
+        $this->parseXml($xml);
     }
 
     /**
