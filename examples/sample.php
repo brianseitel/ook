@@ -10,3 +10,7 @@ $results = $ook->transform();
 
 print_r($results);
 die();
+
+
+function pp($a) { print_r($a); }
+function pd($a) { pp($a); die(); }

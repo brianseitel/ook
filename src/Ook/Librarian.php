@@ -53,6 +53,11 @@ class Librarian {
         $this->loadConfig($config_path);
     }
 
+    public function getData()
+    {
+        return $this->feed_data;
+    }
+
     /**
      * Sets the maximum size for a list of elements in a config.
      *
@@ -203,7 +208,7 @@ class Librarian {
      *
      * @return array
      */
-    public function transform() {
+    public function transform($root = '') {
         $output = [];
 
         $array = Arr::dot($this->feed_data);
