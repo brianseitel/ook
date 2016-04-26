@@ -14,13 +14,13 @@ class Arr {
      * @param int $size - number of keys to generate per wildcard. Defaults to 10.
      * @return array
      */
-    public static function expand_keys($key, $size = 10) {
+    public static function expandKeys($key, $size = 10) {
         $keys = [];
         $original_key = $key;
         for ($i = 0; $i < $size; $i++) {
-            $k = Str::str_replace_first('*', $i, $original_key);
+            $k = Str::strReplaceFirst('*', $i, $original_key);
             if (strpos($k, '*') !== false) {
-                $sub_keys = static::expand_keys($k);
+                $sub_keys = static::expandKeys($k, $size);
                 foreach ($sub_keys as $sk) {
                     $keys[] = $sk;
                 }
@@ -58,51 +58,6 @@ class Arr {
         }
 
         return $array;
-    }
-
-    /**
-     * Build a new array using a callback.
-     *
-     * @param  array  $array
-     * @param  callable  $callback
-     * @return array
-     *
-     * @deprecated since version 5.2.
-     */
-    public static function build($array, callable $callback)
-    {
-        $results = [];
-
-        foreach ($array as $key => $value) {
-            list($innerKey, $innerValue) = call_user_func($callback, $key, $value);
-
-            $results[$innerKey] = $innerValue;
-        }
-
-        return $results;
-    }
-
-    /**
-     * Collapse an array of arrays into a single array.
-     *
-     * @param  array  $array
-     * @return array
-     */
-    public static function collapse($array)
-    {
-        $results = [];
-
-        foreach ($array as $values) {
-            if ($values instanceof Collection) {
-                $values = $values->all();
-            } elseif (! is_array($values)) {
-                continue;
-            }
-
-            $results = array_merge($results, $values);
-        }
-
-        return $results;
     }
 
     /**
@@ -166,46 +121,6 @@ class Arr {
         }
 
         return array_key_exists($key, $array);
-    }
-
-    /**
-     * Return the first element in an array passing a given truth test.
-     *
-     * @param  array  $array
-     * @param  callable|null  $callback
-     * @param  mixed  $default
-     * @return mixed
-     */
-    public static function first($array, callable $callback = null, $default = null)
-    {
-        if (is_null($callback)) {
-            return empty($array) ? value($default) : reset($array);
-        }
-
-        foreach ($array as $key => $value) {
-            if (call_user_func($callback, $key, $value)) {
-                return $value;
-            }
-        }
-
-        return value($default);
-    }
-
-    /**
-     * Return the last element in an array passing a given truth test.
-     *
-     * @param  array  $array
-     * @param  callable|null  $callback
-     * @param  mixed  $default
-     * @return mixed
-     */
-    public static function last($array, callable $callback = null, $default = null)
-    {
-        if (is_null($callback)) {
-            return empty($array) ? value($default) : end($array);
-        }
-
-        return static::first(array_reverse($array), $callback, $default);
     }
 
     /**
@@ -495,18 +410,6 @@ class Arr {
     }
 
     /**
-     * Sort the array using the given callback.
-     *
-     * @param  array  $array
-     * @param  callable  $callback
-     * @return array
-     */
-    public static function sort($array, callable $callback)
-    {
-        return Collection::make($array)->sortBy($callback)->all();
-    }
-
-    /**
      * Recursively sort an array by keys and values.
      *
      * @param  array  $array
@@ -547,5 +450,56 @@ class Arr {
         }
 
         return $filtered;
+    }
+}
+
+
+if (! function_exists('value')) {
+    /**
+     * Return the default value of the given value.
+     *
+     * @param  mixed  $value
+     * @return mixed
+     */
+    function value($value)
+    {
+        return $value instanceof Closure ? $value() : $value;
+    }
+}
+
+if (! function_exists('data_get')) {
+    /**
+     * Get an item from an array or object using "dot" notation.
+     *
+     * @param  mixed   $target
+     * @param  string|array  $key
+     * @param  mixed   $default
+     * @return mixed
+     */
+    function data_get($target, $key, $default = null)
+    {
+        if (is_null($key)) {
+            return $target;
+        }
+        $key = is_array($key) ? $key : explode('.', $key);
+        while (($segment = array_shift($key)) !== null) {
+            if ($segment === '*') {
+                if ($target instanceof Collection) {
+                    $target = $target->all();
+                } elseif (! is_array($target)) {
+                    return value($default);
+                }
+                $result = Arr::pluck($target, $key);
+                return in_array('*', $key) ? Arr::collapse($result) : $result;
+            }
+            if (Arr::accessible($target) && Arr::exists($target, $segment)) {
+                $target = $target[$segment];
+            } elseif (is_object($target) && isset($target->{$segment})) {
+                $target = $target->{$segment};
+            } else {
+                return value($default);
+            }
+        }
+        return $target;
     }
 }

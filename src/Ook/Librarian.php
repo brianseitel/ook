@@ -19,7 +19,7 @@ class Librarian {
      * The data that we converted into an array after loading from the file.
      * @var array
      */
-    private $feed_data;
+    public $feed_data;
 
     /**
      * The configuration passed in via YAML file
@@ -32,14 +32,14 @@ class Librarian {
      *
      * @var string
      */
-    private $expand_size = 1000;
+    public $expand_size = 1000;
 
     /**
      * The options to pass into the parser.
      *
      * @var array
      */
-    private $parser_options = [];
+    public $parser_options = [];
 
     /**
      * Loads the input file and the configuration / rule set
@@ -109,14 +109,17 @@ class Librarian {
             }
 
             if ($json = json_decode($input, 1)) {
-                return $this->loadJSON($json);
+                return $this->loadJSON($input);
             }
 
-            if ($xml = simplexml_load_string($input)) {
-                return $this->loadXML($xml);
+            try {
+              if ($xml = simplexml_load_string($input)) {
+                  return $this->loadXML($xml);
+              }
+            } catch (Exception $e) {
+              // don't do anything if this fails.
             }
         }
-
         throw new Exception('Ook doesn\'t know what to do with this type of input.');
     }
 
@@ -217,8 +220,8 @@ class Librarian {
         $all_rules = [];
         foreach ($rules as $key => $value) {
             if (strpos($key, '*')) {
-                $new_keys = Arr::expand_keys($key, $this->expand_size);
-                $new_values = Arr::expand_keys($value, $this->expand_size);
+                $new_keys = Arr::expandKeys($key, $this->expand_size);
+                $new_values = Arr::expandKeys($value, $this->expand_size);
 
                 $new_rules = array_combine($new_keys, $new_values);
                 foreach ($new_rules as $new_key => $new_rule) {
@@ -227,7 +230,7 @@ class Librarian {
                     }
                 }
             } else {
-                $all_rules[$k] = $v;
+                $all_rules[$key] = $value;
             }
         }
 

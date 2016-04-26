@@ -12,7 +12,7 @@ class Str {
      * @param string $haystack
      * @return string
      */
-    public static function str_replace_first($needle, $replace, $haystack) {
+    public static function strReplaceFirst($needle, $replace, $haystack) {
         $pos = strpos($haystack, $needle);
         if ($pos !== false) {
             return substr_replace($haystack, $replace, $pos, strlen($needle));
